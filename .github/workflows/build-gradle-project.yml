@@ -1,4 +1,7 @@
 name: Build Gradle project
+env:
+  # The name of the main module repository
+  main_project_module: app
 
 on:
   push:
@@ -18,3 +21,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
+      # Create APK Debug
+      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
+        run: ./gradlew assembleDebug
+
