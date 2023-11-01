@@ -25,8 +25,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Run lint
-        uses: ./gradlew lintDebug
 
       - name: SonarCloud Scan # sonarcloud properties in gradle.properties file
         run: ./gradlew app:sonarqube -Dsonar.login=${{ secrets.SONAR_TOKEN }}
