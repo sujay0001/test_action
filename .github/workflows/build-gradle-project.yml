@@ -30,16 +30,25 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
 
-      - name: SonarCloud Scan # sonarcloud properties in gradle.properties file
-        run: ./gradlew app:sonarqube -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: test_action.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+#      - name: SonarCloud Scan # sonarcloud properties in gradle.properties file
+#        run: ./gradlew app:sonarqube -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+#        env:
+#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Create APK Debug
-      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
-        run: ./gradlew assembleDebug --stacktrace
-      # Create Bundle AAB Release
-      # Noted for main module build [main_project_module]:bundleRelease
-      - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
-        run: ./gradlew ${{ env.main_project_module }}:bundleRelease
+#      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
+#        run: ./gradlew assembleDebug --stacktrace
+#      # Create Bundle AAB Release
+#      # Noted for main module build [main_project_module]:bundleRelease
+#      - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
+#        run: ./gradlew ${{ env.main_project_module }}:bundleRelease
+
