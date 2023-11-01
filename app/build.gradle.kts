@@ -50,7 +50,7 @@ android {
     }
 }
 
-sonarqube {
+/*sonarqube {
     properties {
         property("sonar.projectName", "test_action")
         property("sonar.projectKey", "com.example.test_action")
@@ -59,8 +59,9 @@ sonarqube {
         property("sonar.sources", "src/main/")
         property("sonar.login", "username")
         property("sonar.password", "password")
+        property("sonar.gradle.skipCompile", true)
     }
-}
+}*/
 
 dependencies {
 
