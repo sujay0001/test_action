@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.sonarqube")
 }
 
 android {
@@ -46,6 +47,18 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectName", "test_action")
+        property("sonar.projectKey", "com.example.test_action")
+        property("sonar.host.url", "http://192.114.1.1:9000")
+        property("sonar.language", "java")
+        property("sonar.sources", "src/main/")
+        property("sonar.login", "username")
+        property("sonar.password", "password")
     }
 }
 
