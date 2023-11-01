@@ -19,11 +19,22 @@ jobs:
       # Set Repository Name As Env Variable
       - name: Set repository name as env variable
         run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+      - name: Run lint
+        uses: ./gradlew lintDebug
+            - name: Upload html test report
+              uses: actions/upload-artifact@v2
+              with:
+                name: lint.html
+                path: app/build/reports/lint-results-debug.html
       - name: Setup java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: SonarCloud Scan # sonarcloud properties in gradle.properties file
+        run: ./gradlew app:sonarqube -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
