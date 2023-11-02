@@ -59,8 +59,8 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
-      - name: Sign APK
       - uses: r0adkll/sign-android-release@v1
+      - name: Sign APK
         id: sign_app
         with:
           releaseDirectory: |
