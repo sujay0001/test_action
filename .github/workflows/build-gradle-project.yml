@@ -56,7 +56,29 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew build sonar --info
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
 
+      - name: Sign APK
+        uses: Tlaster/android-sign@v1
+        id: sign_app
+        with:
+          releaseDirectory: |
+            app/build/outputs/apk/release
+            app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          output: build/release/signed
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          env:
+            BUILD_TOOLS_VERSION: "30.0.2"
+
+      - name: Upload Signed APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: sample-app-signed  # Artifact Name
+          path: app/build/outputs/apk/release/*.apk
 
 #      - name: SonarCloud Scan # sonarcloud properties in gradle.properties file
 #        run: ./gradlew app:sonarqube -Dsonar.login=${{ secrets.SONAR_TOKEN }}

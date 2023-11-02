@@ -5,6 +5,7 @@ plugins {
     id("org.sonarqube") version "4.4.1.3373"
 }
 
+
 sonar {
     properties {
         property("sonar.projectKey", "sujay0001_test_action")
