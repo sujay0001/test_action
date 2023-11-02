@@ -1,12 +1,8 @@
 name: Android CI
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Application version'
-        required: true
-        default: '1.0'
+  push:
+    workflow_dispatch:
 jobs:
   build:
     name: Build Signed APK
