@@ -14,9 +14,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -58,7 +56,7 @@ jobs:
       # Noted for main module build [main_project_module]:bundleRelease
       - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
         run: ./gradlew ${{ env.main_project_module }}:bundleRelease
-
+upload:
       # Upload Artifact Build
       # Noted For Output [main_project_module]/build/outputs/apk/debug/
       - name: Upload APK Debug - ${{ env.repository_name }}

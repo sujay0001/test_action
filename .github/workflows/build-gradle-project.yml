@@ -30,9 +30,12 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
+
+    build:
       - name: Build debug APK
         run: ./gradlew assembleDebug
 
+    upload:
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
@@ -56,6 +59,7 @@ jobs:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
 #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #        run: ./gradlew build sonar --info
+    release:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
