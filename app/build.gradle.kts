@@ -20,6 +20,20 @@ android {
             useSupportLibrary = true
         }
     }
+    signingConfigs {
+       /* getByName("debug") {
+            keyAlias = "debug"
+            keyPassword = "my debug key password"
+            storeFile = file("/home/miles/keystore.jks")
+            storePassword = "my keystore password"
+        }*/
+        create("release") {
+            keyAlias = "wibmo"
+            keyPassword = "password"
+            storeFile = file("/Users/sujay/Documents/sujay/workspace/GitHub/test_action/key/test.jks")
+            storePassword = "password"
+        }
+    }
 
     buildTypes {
         release {
