@@ -1,0 +1,98 @@
+name: Generate APK, AAB and Upload to Github action
+
+env:
+  # The name of the main module repository
+  main_project_module: app
+
+  # The name of the Play Store
+  playstore_name: test-action
+
+  # Keystore path(Need to check how we can take from property file/environment file with base 64 string)
+  ks_path: ../key/test.jks
+
+  # Keystore password(Need to check how we can take from property file/environment file)
+  ks_store_pass: wibmo@ndroid@123
+
+  # Keystore alias
+  ks_alias: wibmo
+
+  # Keystore alias password
+  ks_alias_pass: password
+
+on:
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout to source
+      - uses: actions/checkout@v3
+
+      # Set Current Date As Env Variable
+      - name: Set current date as env variable
+        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      # Set Repository Name As Env Variable
+      - name: Set repository name as env variable
+        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+
+      - name: Setup jdk
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu' # See 'Supported distributions' for available options
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
+      # Run Build Project
+      - name: Build gradle project
+        run: ./gradlew build
+
+      # Create APK Debug
+      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
+        run: ./gradlew assembleDebug
+
+      # Create APK Release
+      - name: Build apk release project (APK) - ${{ env.main_project_module }} module
+        run: ./gradlew assemble
+
+      # Create Bundle AAB Release
+      # Noted for main module build [main_project_module]:bundleRelease
+      - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
+        run: ./gradlew ${{ env.main_project_module }}:bundleRelease
+
+      - name: Set Env Artifact name from generated aab
+        run: |
+          cd ${{ env.main_project_module }}/build/outputs/bundle/release/
+          files=(*)
+          echo "generated_name_aab=${files[0]%.*}" >> $GITHUB_ENV
+
+      # build APK's build from bundle using bundle tool(need to check bundle path)
+      - name: Build APK(s) from bundle using bundle tool
+        run: java -jar ".github/lib/bundletool.jar" build-apks --bundle=${{ env.main_project_module }}/build/outputs/bundle/release/${{ env.generated_name_aab }}.aab --output=${{ env.main_project_module }}/build/outputs/bundle/release/${{ env.generated_name_aab }}.apks --mode=universal --ks=${{ env.ks_path }} --ks-pass=pass:${{ env.ks_store_pass }} --ks-key-alias=${{ env.ks_alias }} --key-pass=pass:${{ env.ks_alias_pass }}
+
+      # Duplicate APK(s) Release to zip file and extract
+      - name: Duplicate APK(s) Release to zip file and extract
+        run: |
+          cd ${{ env.main_project_module }}/build/outputs/bundle/release/
+          unzip -p ${{ env.generated_name_aab }}.apks universal.apk > ${{ env.generated_name_aab }}.apk
+
+      # upload APK to github
+      # Noted For Output [main_project_module]/build/outputs/apk/release/
+      - name: Upload APK Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
+          path: ${{ env.main_project_module }}/build/outputs/apk/release/
+
+      # Noted For Output [main_project_module]/build/outputs/bundle/release/
+      - name: Upload AAB (App Bundle) Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
+          path: ${{ env.main_project_module }}/build/outputs/bundle/release/

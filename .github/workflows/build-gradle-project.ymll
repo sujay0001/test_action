@@ -1,0 +1,93 @@
+name: Build Gradle project
+env:
+  # The name of the main module repository
+  main_project_module: app
+
+on:
+  push:
+
+jobs:
+  build-gradle-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v3
+      # Set Current Date As Env Variable
+      - name: Set current date as env variable
+        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      # Set Repository Name As Env Variable
+      - name: Set repository name as env variable
+        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Run build with Gradle Wrapper
+        run: ./gradlew build
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: test_action.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+#      - name: Cache SonarCloud packages
+#        uses: actions/cache@v3
+#        with:
+#          path: ~/.sonar/cache
+#          key: ${{ runner.os }}-sonar
+#          restore-keys: ${{ runner.os }}-sonar
+#      - name: Cache Gradle packages
+#        uses: actions/cache@v3
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+#          restore-keys: ${{ runner.os }}-gradle
+#      - name: Build and analyze
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#        run: ./gradlew build sonar --info
+      - name: Build Release Sign APK
+        run: ./gradlew assembleRelease
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+#      - name: Sign APK
+#        uses: Tlaster/android-sign@v1
+#        id: sign_app
+#        with:
+#          releaseDirectory: app/build/outputs/apk/release
+#          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+#          alias: ${{ secrets.ALIAS }}
+#          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+#          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Signed APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: sample-app-signed  # Artifact Name
+          path: app/build/outputs/apk/release/*.apk
+
+#      - name: SonarCloud Scan # sonarcloud properties in gradle.properties file
+#        run: ./gradlew app:sonarqube -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+#        env:
+#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Create APK Debug
+#      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
+#        run: ./gradlew assembleDebug --stacktrace
+#      # Create Bundle AAB Release
+#      # Noted for main module build [main_project_module]:bundleRelease
+#      - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
+#        run: ./gradlew ${{ env.main_project_module }}:bundleRelease
+
