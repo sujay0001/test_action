@@ -7,10 +7,10 @@ env:
   playstore_name: test-action
 
   # Keystore path(Need to check how we can take from property file/environment file with base 64 string)
-  ks_path: ../key/test.jks
+  ks_path: key/test.jks
 
   # Keystore password(Need to check how we can take from property file/environment file)
-  ks_store_pass: wibmo@ndroid@123
+  ks_store_pass: password
 
   # Keystore alias
   ks_alias: wibmo
