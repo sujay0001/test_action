@@ -1,5 +1,4 @@
-name: Generate APK, AAB and Upload to Github action
-
+name: Generate AP AAB and Upload to Github action
 env:
   # The name of the main module repository
   main_project_module: app
@@ -18,18 +17,16 @@ env:
 
   # Keystore alias password
   ks_alias_pass: password
-
 on:
   push:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: checkout to source
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
 
       # Set Current Date As Env Variable
       - name: Set current date as env variable
