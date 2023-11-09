@@ -95,7 +95,7 @@ jobs:
 #          path: ${{ env.main_project_module }}/build/outputs/bundle/release/
 
       - name: Sign app APK
-        uses: kevin-david/zipalign-sign-android-release@v1.1
+        uses: kevin-david/zipalign-sign-android-release@v1.1.1
 
          # ID used to access action output
         id: sign_app
