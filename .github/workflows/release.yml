@@ -93,24 +93,41 @@ jobs:
 #        with:
 #          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
 #          path: ${{ env.main_project_module }}/build/outputs/bundle/release/
-steps:
-  - uses: kevin-david/zipalign-sign-android-release@v1.1
-    name: Sign app APK
-    # ID used to access action output
-    id: sign_app
-    with:
-      releaseDirectory: ${{ env.main_project_module }}/build/outputs/apk/release
-      signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-      alias: ${{ secrets.ALIAS }}
-      keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-      keyPassword: ${{ secrets.KEY_PASSWORD }}
-      zipAlign: true
-    env:
-      # override default build-tools version (32.0.0) -- optional
-      BUILD_TOOLS_VERSION: "30.0.2"
 
-  # Example use of `signedReleaseFile` output -- not needed
-  - uses: actions/upload-artifact@v2
-    with:
-      name: Signed app bundle
-      path: ${{steps.sign_app.outputs.signedReleaseFile}}
+      - name: Sign app APK
+        uses: kevin-david/zipalign-sign-android-release@v1.1
+
+         # ID used to access action output
+        id: sign_app
+        with:
+          releaseDirectory: ${{ env.main_project_module }}/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          zipAlign: true
+        env:
+          # override default build-tools version (32.0.0) -- optional
+          BUILD_TOOLS_VERSION: "30.0.2"
+
+      #Noted For Output [main_project_module]/build/outputs/apk/release/
+      - name: Upload APK Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
+          path: ${{ env.main_project_module }}/build/outputs/apk/release/
+
+      #Noted For Output [main_project_module]/build/outputs/bundle/release/
+      - name: Upload AAB (App Bundle) Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
+          path: ${{ env.main_project_module }}/build/outputs/bundle/release/
+
+      # Example use of `signedReleaseFile` output -- not needed
+      # Noted For Output [main_project_module]/build/outputs/apk/release/
+      - name: Upload APK Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Signed app bundle
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}
